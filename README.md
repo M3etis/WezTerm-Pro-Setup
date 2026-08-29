@@ -3,7 +3,7 @@
 A modular, feature-rich WezTerm terminal configuration with a Catppuccin Mocha theme, powerline tab bar, rich status bar with git integration, and tmux-style keybindings.
 
 ![WezTerm](https://img.shields.io/badge/WezTerm-20240101+-blue?style=flat-square)
-![Version](https://img.shields.io/badge/version-1.0.0-blue?style=flat-square)
+![Version](https://img.shields.io/badge/version-2.0.0-blue?style=flat-square)
 ![License](https://img.shields.io/badge/license-MIT-green?style=flat-square)
 
 ![WezTerm](screenshots/terminal.png)
@@ -42,32 +42,49 @@ All dependencies are installed automatically by the installer. Manual installati
 | `docker`           | Active Docker context              |
 | `kubectl`          | Kubernetes context                 |
 
+## Download
+
+Grab the latest installer from the [Releases](https://github.com/M3etis/WezTerm-Pro-Setup/releases) page:
+
+| Platform | File | Size |
+| -------- | ---- | ---- |
+| Windows  | `WezTerm-Pro-Setup-2.0.0.exe` | ~78 MB |
+| macOS    | `WezTerm-Pro-Setup-2.0.0.dmg` | ~39 MB |
+
+Each installer bundles WezTerm, Nerd Fonts, and the full configuration — one click, no prerequisites.
+
 ## Installation
 
-The installer automatically handles everything: WezTerm, Nerd Fonts, and configuration.
+### Option A: Standalone installer (recommended)
 
-### macOS / Linux
+**Windows** -- double-click the `.exe`, accept the prompts. WezTerm, fonts, and config are installed automatically. Run as Administrator for font registration.
+
+**macOS** -- open the `.dmg`, run the `.pkg` inside. The postinstall script installs fonts to `~/.local/share/fonts` and config to `~/.config/wezterm`.
+
+### Option B: Script install (from repo)
+
+If you prefer to install from source or are on Linux:
 
 ```bash
+# macOS / Linux
 git clone https://github.com/M3etis/WezTerm-Pro-Setup.git
 cd WezTerm-Pro-Setup
 chmod +x install.sh
 ./install.sh
 ```
 
-### Windows (PowerShell as Administrator)
-
 ```powershell
+# Windows (PowerShell as Administrator)
 git clone https://github.com/M3etis/WezTerm-Pro-Setup.git
 cd WezTerm-Pro-Setup
 Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
 .\install.ps1
 ```
 
-The installer will:
-1. Install WezTerm if not present (via Homebrew on macOS, apt/dnf on Linux, GitHub release on Windows)
-2. Back up any existing WezTerm config
-3. Copy configuration files to the WezTerm config directory
+Both methods:
+1. Install WezTerm if not present
+2. Back up any existing config
+3. Copy configuration files
 4. Install MonaspiceNe Nerd Font and JetBrainsMono Nerd Font
 
 ### Verifying the install
@@ -79,6 +96,19 @@ Launch WezTerm. You should see:
 - Status bar segments at the bottom
 
 If icons appear as boxes, restart your terminal or re-login to refresh the font cache.
+
+### Building the installers yourself
+
+Requires `nsis` (Windows) and `create-dmg` + `pkgbuild` (macOS):
+
+```bash
+brew install nsis create-dmg   # macOS only
+./build.sh                      # builds both platforms
+./build.sh 2.1.0 macos          # macOS only
+./build.sh 2.1.0 windows        # Windows only
+```
+
+Output lands in `dist/`.
 
 ## Architecture
 
@@ -115,7 +145,17 @@ wezterm.lua              # Entry point -- composes all modules
  |   +-- formatting.lua  #   String formatting helpers
  |
  +-- themes/
-     +-- catppuccin-mocha.toml  # Standalone color scheme file
+ |   +-- catppuccin-mocha.toml  # Standalone color scheme file
+ |
+ +-- installer/              # Build scripts for distributable installers
+ |   +-- macos/build.sh      #   macOS .pkg/.dmg builder
+ |   +-- windows/build.sh    #   Windows .exe builder (NSIS)
+ |   +-- windows/installer.nsi
+ |   +-- windows/install-fonts.ps1
+ |
+ +-- install.sh              # Script installer (macOS/Linux)
+ +-- install.ps1             # Script installer (Windows)
+ +-- build.sh                # Master build script
 ```
 
 Each `config/*.lua` module exports an `apply(config)` function that mutates and returns the config table. UI modules export `setup()` functions that register WezTerm event handlers.
@@ -338,6 +378,9 @@ A: Change `config.color_scheme` in `config/appearance.lua` and update the palett
 
 **Q: Can I disable the status bar?**
 A: Remove or comment out `require('ui.statusbar').setup()` in `wezterm.lua`.
+
+**Q: How do I update to a new version?**
+A: Download the latest installer from [Releases](https://github.com/M3etis/WezTerm-Pro-Setup/releases) and run it. Existing config is backed up automatically. Or pull the repo and run `./install.sh` / `.\install.ps1` again.
 
 ## License
 
