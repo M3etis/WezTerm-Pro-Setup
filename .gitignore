@@ -1,3 +1,5 @@
 .mimocode/
 docs/
 .DS_Store
+build/
+dist/
