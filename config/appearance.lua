@@ -39,7 +39,7 @@ function M.apply(config)
 	}
 
 	-- Transparency and blur
-	config.window_background_opacity = 0.86
+	config.window_background_opacity = 0.92
 	config.macos_window_background_blur = 20
 
 	-- Cursor

@@ -3,6 +3,7 @@
 A modular, feature-rich WezTerm terminal configuration with a Catppuccin Mocha theme, powerline tab bar, rich status bar with git integration, and tmux-style keybindings.
 
 ![WezTerm](https://img.shields.io/badge/WezTerm-20240101+-blue?style=flat-square)
+![Version](https://img.shields.io/badge/version-1.0.0-blue?style=flat-square)
 ![License](https://img.shields.io/badge/license-MIT-green?style=flat-square)
 
 ![WezTerm](screenshots/terminal.png)
@@ -20,6 +21,8 @@ A modular, feature-rich WezTerm terminal configuration with a Catppuccin Mocha t
 - **Custom notifications** -- toast alerts for bell events in unfocused panes
 
 ## Requirements
+
+All dependencies are installed automatically by the installer. Manual installation is only needed if you prefer it.
 
 | Dependency                                                         | Version   | Purpose                 |
 | ------------------------------------------------------------------ | --------- | ----------------------- |
@@ -41,27 +44,31 @@ A modular, feature-rich WezTerm terminal configuration with a Catppuccin Mocha t
 
 ## Installation
 
-### Quick install
+The installer automatically handles everything: WezTerm, Nerd Fonts, and configuration.
+
+### macOS / Linux
 
 ```bash
-# Back up existing config
-mv ~/.config/wezterm ~/.config/wezterm.bak 2>/dev/null
-
-# Clone this config
-git clone https://github.com/M3etis/WezTerm-Pro-Setup.git ~/.config/wezterm
+git clone https://github.com/M3etis/WezTerm-Pro-Setup.git
+cd WezTerm-Pro-Setup
+chmod +x install.sh
+./install.sh
 ```
 
-### Manual install
+### Windows (PowerShell as Administrator)
 
-```bash
-# Create the config directory
-mkdir -p ~/.config/wezterm
-
-# Copy all files
-cp -r config/ ui/ utils/ themes/ wezterm.lua ~/.config/wezterm/
+```powershell
+git clone https://github.com/M3etis/WezTerm-Pro-Setup.git
+cd WezTerm-Pro-Setup
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
+.\install.ps1
 ```
 
-WezTerm loads `wezterm.lua` from its config directory automatically. No additional setup is needed.
+The installer will:
+1. Install WezTerm if not present (via Homebrew on macOS, apt/dnf on Linux, GitHub release on Windows)
+2. Back up any existing WezTerm config
+3. Copy configuration files to the WezTerm config directory
+4. Install MonaspiceNe Nerd Font and JetBrainsMono Nerd Font
 
 ### Verifying the install
 
@@ -71,33 +78,7 @@ Launch WezTerm. You should see:
 - Powerline-style tab bar at the top
 - Status bar segments at the bottom
 
-If fonts appear as boxes, install the required Nerd Fonts (see below).
-
-## Font installation
-
-This config requires Nerd Font patched fonts for icons and powerline separators.
-
-### macOS (Homebrew)
-
-```bash
-brew tap homebrew/cask-fonts
-brew install --cask font-monaspace-nerd-font
-brew install --cask font-jetbrains-mono-nerd-font
-```
-
-### Linux
-
-```bash
-# Download and install
-mkdir -p ~/.local/share/fonts
-curl -fLO https://github.com/ryanoasis/nerd-fonts/releases/latest/download/Monaspace.zip
-unzip Monaspace.zip -d ~/.local/share/fonts
-fc-cache -fv
-```
-
-### Windows
-
-Download the fonts from [nerd-fonts/releases](https://github.com/ryanoasis/nerd-fonts/releases), right-click each `.ttf` file, and select **Install**.
+If icons appear as boxes, restart your terminal or re-login to refresh the font cache.
 
 ## Architecture
 
