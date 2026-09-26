@@ -44,18 +44,24 @@ ok "WezTerm downloaded"
 # ── 2. Download Nerd Fonts ─────────────────────────────────────────
 info "Downloading Nerd Fonts..."
 
-declare -A FONTS=(
-    ["Monaspace.zip"]="MonaspiceNeNerdFont-"
-    ["JetBrainsMono.zip"]="JetBrainsMonoNerdFont-"
+# "zip_name:file_prefix" — avoid declare -A (macOS ships bash 3.2)
+FONTS=(
+    "Monaspace.zip:MonaspiceNeNerdFont-"
+    "JetBrainsMono.zip:JetBrainsMonoNerdFont-"
 )
 
-for asset in "${!FONTS[@]}"; do
-    prefix="${FONTS[$asset]}"
+for entry in "${FONTS[@]}"; do
+    asset="${entry%%:*}"
+    prefix="${entry##*:}"
     info "  Fetching $asset..."
     url="$(curl -sL https://api.github.com/repos/ryanoasis/nerd-fonts/releases/latest \
         | grep -o "\"browser_download_url\": \"[^\"]*${asset}\"" \
         | head -1 \
         | sed 's/"browser_download_url": "//;s/"$//')"
+    if [[ -z "$url" ]]; then
+        err "Could not find ${asset} in nerd-fonts latest release"
+        exit 1
+    fi
     curl -fSL "$url" -o "$BUILD_DIR/$asset"
     name="${asset%.zip}"
     unzip -qo "$BUILD_DIR/$asset" -d "$BUILD_DIR/fonts/$name"

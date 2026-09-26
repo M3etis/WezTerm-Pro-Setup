@@ -98,11 +98,28 @@ function M.get_display_name(process_name)
   return M.get_info(process_name).display
 end
 
---- Get foreground process info from pane
---- @param pane table WezTerm pane object
+--- Get foreground process info from a pane or PaneInformation table
+--- @param pane table WezTerm Pane object or PaneInformation (from format-tab-title)
 --- @return table { name, icon, display, path }
 function M.get_foreground(pane)
-  local process_path = pane:get_foreground_process_name() or ''
+  local process_path = ''
+
+  if pane ~= nil then
+    -- PaneInformation (format-tab-title): plain table with process_name field
+    local ok_name, name = pcall(function() return pane.process_name end)
+    if ok_name and type(name) == 'string' then
+      process_path = name
+    else
+      -- Pane userdata: real method (pcall — type may not expose it)
+      local ok_path, path = pcall(function()
+        return pane:get_foreground_process_name()
+      end)
+      if ok_path and type(path) == 'string' then
+        process_path = path
+      end
+    end
+  end
+
   local name = M.get_name(process_path)
   local info = M.get_info(name)
 

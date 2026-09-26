@@ -25,7 +25,7 @@ function Install-WezTerm {
     New-Item -ItemType Directory -Path $tempDir -Force | Out-Null
 
     try {
-        $release = Invoke-RestMethod -Uri "https://api.github.com/repos/wezterm/wezterm/releases/latest" -Headers @{ 'User-Agent' = 'WezTerm-Installer' }
+        $release = Invoke-RestMethod -Uri "https://api.github.com/repos/wez/wezterm/releases/latest" -Headers @{ 'User-Agent' = 'WezTerm-Installer' }
         $asset = $release.assets | Where-Object { $_.name -match '\.exe$' -and $_.name -notmatch 'portable' } | Select-Object -First 1
         if (-not $asset) {
             $asset = $release.assets | Where-Object { $_.name -match '\.exe$' } | Select-Object -First 1

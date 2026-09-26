@@ -2,6 +2,7 @@
 -- Terminal behavior configuration
 
 local wezterm = require('wezterm')
+local platform = require('utils.platform')
 
 local M = {}
 
@@ -9,8 +10,14 @@ local M = {}
 --- @param config table WezTerm config
 --- @return table Modified config
 function M.apply(config)
-  -- Default shell
-  config.default_prog = { '/bin/zsh', '-l' }
+  -- Default shell (must match the host OS or the window exits immediately)
+  if platform.is_windows then
+    config.default_prog = { 'powershell.exe', '-NoLogo' }
+  elseif platform.is_macos then
+    config.default_prog = { '/bin/zsh', '-l' }
+  else
+    config.default_prog = { '/bin/bash', '-l' }
+  end
 
   -- Selection word boundaries
   config.selection_word_boundary = ' \t\n{}[]()"\'`,;:@│┃'

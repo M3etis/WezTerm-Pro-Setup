@@ -3,7 +3,7 @@
 A modular, feature-rich WezTerm terminal configuration with a Catppuccin Mocha theme, powerline tab bar, rich status bar with git integration, and tmux-style keybindings.
 
 ![WezTerm](https://img.shields.io/badge/WezTerm-20240101+-blue?style=flat-square)
-![Version](https://img.shields.io/badge/version-2.0.0-blue?style=flat-square)
+![Version](https://img.shields.io/badge/version-2.0.1-blue?style=flat-square)
 ![License](https://img.shields.io/badge/license-MIT-green?style=flat-square)
 
 ![WezTerm](screenshots/terminal.png)
@@ -15,8 +15,8 @@ A modular, feature-rich WezTerm terminal configuration with a Catppuccin Mocha t
 - **Rich status bar** -- git branch/dirty state, Python/Node/Rust/Go versions, Docker & Kubernetes context, CPU/RAM usage with labels, battery, hostname (SSH only)
 - **Tmux-style leader key** -- `Ctrl+A` leader with vim-style pane navigation
 - **Modular architecture** -- configuration split into focused modules under `config/`, `ui/`, `utils/`
-- **WebGPU rendering** -- GPU-accelerated frontend with 120fps cap
-- **Platform-aware** -- automatic macOS/Linux/Windows adjustments
+- **OpenGL rendering** -- reliable default frontend with 120fps cap
+- **Platform-aware** -- automatic macOS/Linux/Windows shell and UI adjustments
 - **Kitty graphics protocol** -- image display support
 - **Custom notifications** -- toast alerts for bell events in unfocused panes
 
@@ -48,8 +48,9 @@ Grab the latest installer from the [Releases](https://github.com/M3etis/WezTerm-
 
 | Platform | File | Size |
 | -------- | ---- | ---- |
-| Windows  | `WezTerm-Pro-Setup-2.0.0.exe` | ~78 MB |
-| macOS    | `WezTerm-Pro-Setup-2.0.0.dmg` | ~39 MB |
+| Windows  | `WezTerm-Pro-Setup-2.0.1.exe` | ~78 MB |
+| macOS    | `WezTerm-Pro-Setup-2.0.1.dmg` | ~135 MB |
+| macOS    | `WezTerm-Pro-Setup-2.0.1.pkg` | ~136 MB |
 
 Each installer bundles WezTerm, Nerd Fonts, and the full configuration — one click, no prerequisites.
 
@@ -59,7 +60,7 @@ Each installer bundles WezTerm, Nerd Fonts, and the full configuration — one c
 
 **Windows** -- double-click the `.exe`, accept the prompts. WezTerm, fonts, and config are installed automatically. Run as Administrator for font registration.
 
-**macOS** -- open the `.dmg`, run the `.pkg` inside. The postinstall script installs fonts to `~/.local/share/fonts` and config to `~/.config/wezterm`.
+**macOS** -- open the `.dmg`, run the `.pkg` inside. The installer copies `WezTerm.app` to `/Applications`, installs fonts to `~/Library/Fonts`, and deploys the config to `~/.config/wezterm` for the logged-in user (not root).
 
 ### Option B: Script install (from repo)
 

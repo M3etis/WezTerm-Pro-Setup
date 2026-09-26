@@ -10,7 +10,7 @@ local cwd_utils = require('utils.cwd')
 
 local M = {}
 
--- CPU and Memory helpers (not in components, so we add them here) ---------
+-- CPU and Memory helpers (macOS; nil on other platforms) -----------------
 
 local function get_cpu_usage()
   local no_err, ok, stdout, _ = pcall(wezterm.run_child_process, { 'sysctl', '-n', 'hw.ncpu' })
@@ -84,8 +84,14 @@ local function build_left_status(window, pane)
     table.insert(segments, s)
   end
 
-  -- Zoom indicator
-  if pane:is_zoomed() then
+  -- Zoom indicator (Pane object exposes is_zoomed() as a method)
+  local zoomed = false
+  if type(pane.is_zoomed) == 'function' then
+    zoomed = pane:is_zoomed()
+  elseif type(pane.is_zoomed) == 'boolean' then
+    zoomed = pane.is_zoomed
+  end
+  if zoomed then
     for _, s in ipairs(segment(icons.ui.zoom .. ' ZOOM', colors.palette.peach, colors.palette.surface0)) do
       table.insert(segments, s)
     end
@@ -171,8 +177,8 @@ local function build_right_status(window, pane)
 
   -- Hostname (only when connected via SSH)
   if #domain_segments > 0 then
-    local domain_name = pane:get_domain_name() or ''
-    if domain_name:lower():find('ssh') then
+    local ok_dom, domain_name = pcall(function() return pane:get_domain_name() end)
+    if ok_dom and type(domain_name) == 'string' and domain_name:lower():find('ssh') then
       for _, s in ipairs(components.hostname()) do
         table.insert(segments, s)
       end

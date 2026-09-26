@@ -8,11 +8,11 @@ local M = {}
 --- Get full hostname
 --- @return string Hostname
 function M.get()
-  local success, stdout, _ = wezterm.run_child_process({ 'hostname' })
-  if success then
+  local ok, success, stdout = pcall(wezterm.run_child_process, { 'hostname' })
+  if ok and success then
     return stdout:gsub('%s+$', '')
   end
-  return os.getenv('HOSTNAME') or 'localhost'
+  return os.getenv('HOSTNAME') or os.getenv('COMPUTERNAME') or 'localhost'
 end
 
 --- Get short hostname (without domain)

@@ -50,8 +50,15 @@ Section "WezTerm" SecWezTerm
 
     ; Find wezterm.exe for the finish page
     SearchPath $WezTermExe wezterm.exe
-    StrCmp $WezTermExe "" 0 +2
-        StrCpy $WezTermExe "$INSTDIR\wezterm.exe"
+    IfFileExists "$WezTermExe" wezterm_found 0
+    StrCpy $WezTermExe "$INSTDIR\wezterm.exe"
+    IfFileExists "$WezTermExe" wezterm_found 0
+    StrCpy $WezTermExe "$PROGRAMFILES64\WezTerm\wezterm.exe"
+    IfFileExists "$WezTermExe" wezterm_found 0
+    StrCpy $WezTermExe "$PROGRAMFILES\WezTerm\wezterm.exe"
+    IfFileExists "$WezTermExe" wezterm_found 0
+    StrCpy $WezTermExe "$LOCALAPPDATA\Programs\WezTerm\wezterm.exe"
+    wezterm_found:
 
     DetailPrint "WezTerm installed successfully"
 SectionEnd
@@ -61,12 +68,10 @@ Section "Nerd Fonts" SecFonts
     SetOutPath "$INSTDIR\fonts"
 
     DetailPrint "Installing MonaspiceNe Nerd Font..."
-    File /nonfatal /r "${FONTS_DIR}\Monaspace\*.ttf"
     File /nonfatal /r "${FONTS_DIR}\Monaspace\*.otf"
 
     DetailPrint "Installing JetBrainsMono Nerd Font..."
     File /nonfatal /r "${FONTS_DIR}\JetBrainsMono\*.ttf"
-    File /nonfatal /r "${FONTS_DIR}\JetBrainsMono\*.otf"
 
     ; Install font registration script
     SetOutPath "$INSTDIR"

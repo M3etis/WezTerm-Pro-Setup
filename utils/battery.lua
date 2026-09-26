@@ -8,8 +8,8 @@ local M = {}
 --- Get battery info from system
 --- @return table { percentage, state, charging }
 function M.get_info()
-  local success, stdout, _ = wezterm.run_child_process({ 'pmset', '-g', 'batt' })
-  if not success then
+  local ok, success, stdout = pcall(wezterm.run_child_process, { 'pmset', '-g', 'batt' })
+  if not ok or not success then
     return { percentage = -1, state = 'unknown', charging = false }
   end
 

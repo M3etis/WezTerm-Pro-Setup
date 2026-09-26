@@ -24,7 +24,11 @@ function M.apply(config)
 
 	-- Window frame (integrated title buttons on macOS)
 	config.window_frame = {
-		font = require("wezterm").font("MonaspiceNe Nerd Font", { weight = "Bold" }),
+		font = require("wezterm").font_with_fallback({
+			{ family = "MonaspiceNe NF", weight = "Bold" },
+			{ family = "MonaspiceNe Nerd Font", weight = "Bold" },
+			{ family = "JetBrainsMono NF", weight = "Bold" },
+		}),
 		font_size = 13.0,
 		active_titlebar_bg = colors.palette.crust,
 		inactive_titlebar_bg = colors.palette.crust,

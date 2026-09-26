@@ -21,10 +21,22 @@ local function text_seg(fg, bg, text)
   return { Foreground = { Color = fg } }, { Background = { Color = bg } }, { Text = text }
 end
 
+-- Safe optional field read: WezTerm userdata errors on unknown fields
+local function get_field(tbl, key, default)
+  if type(tbl) ~= 'table' and type(tbl) ~= 'userdata' then
+    return default
+  end
+  local ok, value = pcall(function() return tbl[key] end)
+  if ok and value ~= nil then
+    return value
+  end
+  return default
+end
+
 -- Build formatted segments for a single tab
 local function format_tab(tab_info, is_active, is_last, max_width)
   local segments = {}
-  local pane = tab_info.active_pane
+  local pane = get_field(tab_info, 'active_pane')
   local proc = process.get_foreground(pane)
 
   local bg = is_active and p.surface0 or p.crust
@@ -43,14 +55,19 @@ local function format_tab(tab_info, is_active, is_last, max_width)
     end
   end
 
-  -- Tab index
-  for _, s in ipairs({ text_seg(fg, bg, ' ' .. (tab_info.tab_index + 1) .. ':') }) do
+  -- Tab index (1-based; fall back to a stable placeholder if unavailable)
+  local index = (get_field(tab_info, 'tab_index', 0)) + 1
+  for _, s in ipairs({ text_seg(fg, bg, ' ' .. index .. ':') }) do
     table.insert(segments, s)
   end
 
   -- Title (truncated if needed)
-  local title = tab_info.tab_title ~= '' and tab_info.tab_title or proc.display
-  local max_title = max_width - 8
+  local raw_title = get_field(tab_info, 'tab_title', '')
+  if type(raw_title) ~= 'string' or raw_title == '' then
+    raw_title = proc.display
+  end
+  local title = raw_title
+  local max_title = math.max(4, (max_width or 40) - 8)
   if #title > max_title then
     title = title:sub(1, max_title - 1) .. '…'
   end
@@ -58,15 +75,15 @@ local function format_tab(tab_info, is_active, is_last, max_width)
     table.insert(segments, s)
   end
 
-  -- Zoomed pane indicator
-  if pane.is_zoomed and pane:is_zoomed() then
+  -- Zoomed pane indicator (PaneInformation.is_zoomed is a boolean field)
+  if get_field(pane, 'is_zoomed', false) then
     for _, s in ipairs({ text_seg(p.peach, bg, icons.ui.zoom .. ' ') }) do
       table.insert(segments, s)
     end
   end
 
   -- Unread activity indicator
-  if tab_info.has_unseen_output then
+  if get_field(tab_info, 'has_unseen_output', false) then
     for _, s in ipairs({ text_seg(p.yellow, bg, icons.ui.bell .. ' ') }) do
       table.insert(segments, s)
     end

@@ -119,7 +119,12 @@ install_fonts() {
         fi
     fi
 
-    local fonts_dir="${HOME}/.local/share/fonts"
+    local fonts_dir
+    if [[ "$(uname)" == "Darwin" ]]; then
+        fonts_dir="${HOME}/Library/Fonts"
+    else
+        fonts_dir="${HOME}/.local/share/fonts"
+    fi
     mkdir -p "$fonts_dir"
 
     local tmp_dir

@@ -179,7 +179,8 @@ end
 --- @return table segments
 function M.domain(pane)
   if not pane then return {} end
-  local domain = pane:get_domain_name() or 'local'
+  local ok, domain = pcall(function() return pane:get_domain_name() end)
+  if not ok or type(domain) ~= 'string' then return {} end
   if domain == '' or domain == 'local' then return {} end
   return segment(domain, colors.palette.sky, colors.palette.surface0)
 end

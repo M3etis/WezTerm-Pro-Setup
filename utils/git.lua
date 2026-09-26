@@ -26,12 +26,12 @@ function M.get_branch(cwd)
     return cache.branch[cwd]
   end
 
-  local success, stdout, _ = wezterm.run_child_process({
+  local ok, success, stdout = pcall(wezterm.run_child_process, {
     'git', '-C', cwd, 'rev-parse', '--abbrev-ref', 'HEAD'
   })
 
   local branch = ''
-  if success then
+  if ok and success then
     branch = stdout:gsub('%s+$', '')
   end
 
@@ -53,11 +53,11 @@ function M.is_dirty(cwd)
     return cache.dirty[cwd]
   end
 
-  local success, stdout, _ = wezterm.run_child_process({
+  local ok, success, stdout = pcall(wezterm.run_child_process, {
     'git', '-C', cwd, 'status', '--porcelain'
   })
 
-  local dirty = success and stdout ~= ''
+  local dirty = ok and success and stdout ~= ''
   cache.dirty[cwd] = dirty
 
   return dirty
@@ -69,11 +69,11 @@ end
 function M.get_ahead_count(cwd)
   if not cwd or cwd == '' then return 0, 0 end
 
-  local success, stdout, _ = wezterm.run_child_process({
+  local ok, success, stdout = pcall(wezterm.run_child_process, {
     'git', '-C', cwd, 'rev-list', '--left-right', '--count', 'HEAD...@{upstream}'
   })
 
-  if success then
+  if ok and success then
     local ahead, behind = stdout:match('(%d+)%s+(%d+)')
     return tonumber(ahead) or 0, tonumber(behind) or 0
   end

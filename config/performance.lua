@@ -9,8 +9,9 @@ local M = {}
 --- @param config table WezTerm config
 --- @return table Modified config
 function M.apply(config)
-  -- Rendering backend: prefer WebGPU for GPU-accelerated rendering
-  config.front_end = 'WebGpu'
+  -- Rendering backend: OpenGL is the reliable default.
+  -- WebGPU is faster on supported machines but fails to start on others.
+  config.front_end = 'OpenGL'
 
   -- Frame rate limits
   config.max_fps = 120
@@ -23,9 +24,7 @@ function M.apply(config)
   config.enable_kitty_graphics = true
 
   -- Platform-specific optimizations
-  if platform.is_macos then
-    config.webgpu_force_fallback_adapter = false
-  elseif platform.is_linux then
+  if platform.is_linux then
     config.enable_wayland = true
   end
 
