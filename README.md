@@ -15,6 +15,7 @@ A modular, feature-rich WezTerm terminal configuration with a Catppuccin Mocha t
 - **Rich status bar** -- git branch/dirty state, Python/Node/Rust/Go versions, Docker & Kubernetes context, CPU/RAM usage with labels, battery, hostname (SSH only)
 - **Tmux-style leader key** -- `Ctrl+A` leader with vim-style pane navigation
 - **Modular architecture** -- configuration split into focused modules under `config/`, `ui/`, `utils/`
+- **Shell stack** -- oh-my-zsh, zsh-autosuggestions, zsh-syntax-highlighting, Powerlevel10k, eza, zoxide and curated aliases (`shell/zshrc`)
 - **OpenGL rendering** -- reliable default frontend with 120fps cap
 - **Platform-aware** -- automatic macOS/Linux/Windows shell and UI adjustments
 - **Kitty graphics protocol** -- image display support
@@ -87,6 +88,21 @@ Both methods:
 2. Back up any existing config
 3. Copy configuration files
 4. Install MonaspiceNe Nerd Font and JetBrainsMono Nerd Font
+5. Set up the shell stack (macOS/Linux script path): oh-my-zsh + plugins, Powerlevel10k, eza, zoxide, `~/.zshrc` (existing file is backed up)
+
+### Shell stack
+
+`install.sh` deploys `shell/zshrc` to `~/.zshrc` and installs:
+
+| Component | Notes |
+| --------- | ----- |
+| oh-my-zsh | Theme `robbyrussell` by default |
+| zsh-autosuggestions | Fish-like suggestions |
+| zsh-syntax-highlighting | Command highlighting (must stay last in `plugins`) |
+| Powerlevel10k | Installed as a custom theme; switch with `ZSH_THEME="powerlevel10k/powerlevel10k"` then `p10k configure` |
+| eza | `ls` / `ll` / `la` / `lt` aliases |
+| zoxide | Smarter `cd` (`z <dir>`) |
+| Aliases | Coding, navigation, git, env-config helpers |
 
 ### Verifying the install
 
@@ -147,6 +163,9 @@ wezterm.lua              # Entry point -- composes all modules
  |
  +-- themes/
  |   +-- catppuccin-mocha.toml  # Standalone color scheme file
+ |
+ +-- shell/
+ |   +-- zshrc                 # Managed ~/.zshrc template (omz, eza, zoxide, aliases)
  |
  +-- installer/              # Build scripts for distributable installers
  |   +-- macos/build.sh      #   macOS .pkg/.dmg builder

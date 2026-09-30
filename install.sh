@@ -89,6 +89,115 @@ cleanup_config() {
     ok "Cleanup complete"
 }
 
+# ── Shell stack (oh-my-zsh + tools) ───────────────────────────────────
+
+OMZ_DIR="${HOME}/.oh-my-zsh"
+ZSH_CUSTOM="${OMZ_DIR}/custom"
+ZSHRC="${HOME}/.zshrc"
+ZSHRC_TEMPLATE="${SCRIPT_DIR}/shell/zshrc"
+
+ensure_brew() {
+    if command -v brew &>/dev/null; then
+        return
+    fi
+    if [[ "$(uname)" != "Darwin" ]]; then
+        return 1
+    fi
+    err "Homebrew not found. Install it first: https://brew.sh"
+    exit 1
+}
+
+install_shell_tools() {
+    info "Installing shell tools (eza, zoxide)..."
+
+    if [[ "$(uname)" == "Darwin" ]]; then
+        ensure_brew
+        brew install eza zoxide 2>/dev/null || true
+    elif command -v apt-get &>/dev/null; then
+        # Debian/Ubuntu — eza may be missing from older apt; zoxide is available
+        sudo apt-get install -y zoxide 2>/dev/null || warn "zoxide not in apt — install manually"
+        if ! command -v eza &>/dev/null; then
+            warn "eza not in apt — trying cargo/static install is skipped; install via https://eza.rocks"
+        fi
+    elif command -v dnf &>/dev/null; then
+        sudo dnf install -y zoxide 2>/dev/null || warn "zoxide not in dnf — install manually"
+    fi
+
+    command -v eza &>/dev/null && ok "eza: $(eza --version 2>/dev/null | head -1)" || warn "eza not installed"
+    command -v zoxide &>/dev/null && ok "zoxide: $(zoxide --version 2>/dev/null)" || warn "zoxide not installed"
+}
+
+clone_or_update() {
+    local repo="$1"
+    local dest="$2"
+    if [[ -d "${dest}/.git" ]]; then
+        git -C "$dest" pull --ff-only --quiet 2>/dev/null || warn "Could not update $dest (kept existing)"
+    else
+        git clone --depth=1 --quiet "$repo" "$dest"
+    fi
+}
+
+install_oh_my_zsh() {
+    if [[ -d "$OMZ_DIR" ]]; then
+        ok "oh-my-zsh already installed"
+        return
+    fi
+
+    info "Installing oh-my-zsh..."
+    RUNZSH=no CHSH=no KEEP_ZSHRC=yes sh -c \
+        "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" \
+        >/dev/null
+    ok "oh-my-zsh installed"
+}
+
+install_omz_plugins() {
+    info "Installing oh-my-zsh plugins and themes..."
+
+    clone_or_update \
+        "https://github.com/zsh-users/zsh-autosuggestions.git" \
+        "${ZSH_CUSTOM}/plugins/zsh-autosuggestions"
+    ok "zsh-autosuggestions"
+
+    clone_or_update \
+        "https://github.com/zsh-users/zsh-syntax-highlighting.git" \
+        "${ZSH_CUSTOM}/plugins/zsh-syntax-highlighting"
+    ok "zsh-syntax-highlighting"
+
+    clone_or_update \
+        "https://github.com/romkatv/powerlevel10k.git" \
+        "${ZSH_CUSTOM}/themes/powerlevel10k"
+    ok "powerlevel10k (theme available as powerlevel10k/powerlevel10k)"
+}
+
+install_zshrc() {
+    if [[ ! -f "$ZSHRC_TEMPLATE" ]]; then
+        err "Template not found: $ZSHRC_TEMPLATE"
+        return 1
+    fi
+
+    if [[ -f "$ZSHRC" ]]; then
+        local backup="${ZSHRC}.bak.$(date +%Y%m%d%H%M%S)"
+        warn "Existing ~/.zshrc found"
+        info "Backing up to $backup"
+        cp "$ZSHRC" "$backup"
+        ok "Backup created"
+    fi
+
+    info "Installing ~/.zshrc"
+    cp "$ZSHRC_TEMPLATE" "$ZSHRC"
+    ok "~/.zshrc installed"
+}
+
+setup_shell() {
+    echo ""
+    echo "  Shell setup (oh-my-zsh + eza + zoxide)"
+    echo "  ──────────────────────────────────────"
+    install_shell_tools
+    install_oh_my_zsh
+    install_omz_plugins
+    install_zshrc
+}
+
 # Install required Nerd Fonts
 install_fonts() {
     local fonts=("Monaspace:Monaspace.zip" "JetBrainsMono:JetBrainsMono.zip")
@@ -177,13 +286,17 @@ main() {
     install_config
     cleanup_config
     install_fonts
+    setup_shell
     echo ""
     ok "Installation complete!"
     echo ""
     echo "  Next steps:"
     echo "    1. Restart WezTerm (or reload config with Leader + Ctrl+R)"
-    echo "    2. Verify the Catppuccin Mocha theme and status bar are visible"
-    echo "    3. If icons appear as boxes, ensure Nerd Fonts are installed and"
+    echo "    2. Open a new zsh session (or run: exec zsh)"
+    echo "    3. Verify the Catppuccin Mocha theme and status bar are visible"
+    echo "    4. Optional: switch prompt to Powerlevel10k in ~/.zshrc"
+    echo "       (ZSH_THEME=\"powerlevel10k/powerlevel10k\") and run: p10k configure"
+    echo "    5. If icons appear as boxes, ensure Nerd Fonts are installed and"
     echo "       selected in your terminal profile"
     echo ""
 }
