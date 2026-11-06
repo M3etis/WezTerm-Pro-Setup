@@ -6,7 +6,7 @@ A modular, feature-rich WezTerm terminal configuration with a Catppuccin Mocha t
 ![Version](https://img.shields.io/badge/version-2.0.1-blue?style=flat-square)
 ![License](https://img.shields.io/badge/license-MIT-green?style=flat-square)
 
-![WezTerm](screenshots/terminal.png)
+![WezTerm Pro Setup: Catppuccin Mocha terminal with tabs, split panes and git/Python/Node/Docker status bar, the Ctrl+A leader-key cheat sheet and the macOS installer](screenshots/terminal.png)
 
 ## Features
 
