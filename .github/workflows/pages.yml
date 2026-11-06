@@ -1,0 +1,68 @@
+name: Deploy landing
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - index.html
+      - screenshots/**
+      - .github/workflows/pages.yml
+  release:
+    types: [published]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      # On a release event the ref is the tag; always build the landing from main.
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.repository.default_branch }}
+
+      - name: Resolve latest release version
+        id: version
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          tag=$(gh release view --repo "$GITHUB_REPOSITORY" --json tagName -q .tagName 2>/dev/null || true)
+          echo "Latest release: ${tag:-<none>}"
+          echo "version=${tag#v}" >> "$GITHUB_OUTPUT"
+
+      - name: Build site
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          mkdir -p _site
+          cp index.html _site/
+          [ -d screenshots ] && cp -r screenshots _site/
+          touch _site/.nojekyll
+          if [ -n "$VERSION" ]; then
+            perl -pi -e 's{(<span data-version>)[^<]*(</span>)}{$1$ENV{VERSION}$2}g' _site/index.html
+            grep -o '<span data-version>[^<]*</span>' _site/index.html
+          fi
+
+      - uses: actions/configure-pages@v6
+
+      - uses: actions/upload-pages-artifact@v5
+        with:
+          path: _site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v5
